@@ -12,6 +12,7 @@ mkdirSync(outputDir, { recursive: true });
 const viewports = [
   { id: 'mobile-small', width: 320, height: 568 },
   { id: 'mobile', width: 390, height: 844 },
+  { id: 'mobile-short', width: 390, height: 700 },
   { id: 'tablet-portrait', width: 768, height: 1024 },
   { id: 'tablet-landscape', width: 1024, height: 768 },
   { id: 'desktop', width: 1440, height: 1000 },
@@ -54,7 +55,7 @@ for (const viewport of viewports) {
     horizontalOverflow: document.documentElement.scrollWidth > document.documentElement.clientWidth + 2,
   }));
   report.viewports.push({ id: viewport.id, width: viewport.width, height: viewport.height, screenshot, layout, consoleErrors, requestFailures, violations });
-  if (layout.horizontalOverflow || consoleErrors.length || requestFailures.length || violations.some((item) => item.impact === 'critical' || item.impact === 'serious')) report.status = 'FAIL';
+  if (layout.horizontalOverflow || consoleErrors.length || requestFailures.length || violations.length) report.status = 'FAIL';
   await context.close();
 }
 
@@ -113,7 +114,7 @@ for (const viewport of [{ id: 'mobile', width: 390, height: 844 }, { id: 'tablet
     await page.goto(`${url}${surface[1]}`, { waitUntil: 'domcontentloaded' });
     const inspection = await inspectPage(page, join(outputDir, `${viewport.id}-${surface[0]}.png`));
     report.surfaces.push({ viewport: viewport.id, surface: surface[0], ...inspection });
-    if (inspection.layout.horizontalOverflow || inspection.violations.some((item) => item.impact === 'critical' || item.impact === 'serious')) report.status = 'FAIL';
+    if (inspection.layout.horizontalOverflow || inspection.violations.length) report.status = 'FAIL';
   }
   await context.close();
 }
@@ -132,7 +133,7 @@ for (const viewport of [{ id: 'mobile-dark', width: 390, height: 844 }, { id: 'd
     await page.goto(`${url}${surface[1]}`, { waitUntil: 'domcontentloaded' });
     const inspection = await inspectPage(page, join(outputDir, `${viewport.id}-${surface[0]}.png`));
     report.surfaces.push({ viewport: viewport.id, surface: surface[0], ...inspection });
-    if (inspection.layout.horizontalOverflow || inspection.violations.some((item) => item.impact === 'critical' || item.impact === 'serious')) report.status = 'FAIL';
+    if (inspection.layout.horizontalOverflow || inspection.violations.length) report.status = 'FAIL';
   }
   await context.close();
 }

@@ -25,7 +25,7 @@ const TimerDock: React.FC<{ timer: ActiveTimer; onChange: React.Dispatch<React.S
   const seconds = String(timer.seconds % 60).padStart(2, '0');
   const progress = ((timer.initialSeconds - timer.seconds) / timer.initialSeconds) * 100;
   return (
-    <motion.aside initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} className="fixed bottom-[84px] left-4 right-4 z-50 overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl md:bottom-6 md:left-auto md:right-6 md:w-[360px] dark:border-white/10 dark:bg-clinical-ink" aria-label="Cronômetro clínico">
+    <motion.aside initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} className="fixed bottom-[calc(84px+env(safe-area-inset-bottom))] left-4 right-4 z-50 overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl lg:bottom-6 lg:left-auto lg:right-6 lg:w-[360px] dark:border-white/10 dark:bg-clinical-ink" aria-label="Cronômetro clínico">
       <div className="absolute inset-x-0 bottom-0 h-1 bg-slate-100 dark:bg-white/10"><div className="h-full bg-mineral-500" style={{ width: `${progress}%` }} /></div>
       <div className="flex items-start justify-between gap-4"><div><p className="eyebrow">Cronômetro {timer.running ? 'em andamento' : timer.seconds === 0 ? 'concluído' : 'pausado'}</p><p className="mt-2 font-mono text-3xl font-extrabold tabular-nums" aria-live="polite">{minutes}:{seconds}</p><p className="mt-1 max-w-[220px] truncate text-xs text-slate-600 dark:text-slate-300">{timer.stepTitle}</p></div><button type="button" onClick={() => onChange(null)} className="icon-button" aria-label="Fechar cronômetro"><X className="h-4 w-4" /></button></div>
       <div className="mt-3 flex gap-2"><button type="button" onClick={() => onChange((current) => current ? { ...current, seconds: current.initialSeconds, running: false } : null)} className="secondary-action" aria-label="Reiniciar cronômetro"><RotateCcw className="h-4 w-4" />Reiniciar</button><button type="button" onClick={() => onChange((current) => current ? { ...current, running: !current.running } : null)} className="primary-action" aria-label={timer.running ? 'Pausar cronômetro' : 'Continuar cronômetro'}>{timer.running ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}{timer.running ? 'Pausar' : 'Continuar'}</button></div>
@@ -45,7 +45,7 @@ export const ProtocolView: React.FC<{ protocol: Protocol }> = ({ protocol }) => 
 
   return (
     <div className="mx-auto max-w-4xl px-4 pb-32 sm:px-6 lg:px-8">
-      <header className="sticky top-0 z-30 -mx-4 border-b border-slate-200 bg-clinical-ivory/95 px-4 py-3 backdrop-blur dark:border-white/10 dark:bg-clinical-midnight/95 sm:-mx-6 sm:px-6">
+      <header className="sticky top-[64px] z-30 -mx-4 border-b border-slate-200 bg-clinical-ivory/95 px-4 py-3 backdrop-blur lg:top-0 dark:border-white/10 dark:bg-clinical-midnight/95 sm:-mx-6 sm:px-6">
         <div className="flex items-center gap-3">
           <button type="button" onClick={() => navigate('protocols')} className="icon-button" aria-label="Voltar aos protocolos"><ArrowLeft className="h-5 w-5" /></button>
           <div className="min-w-0 flex-1">
@@ -55,7 +55,7 @@ export const ProtocolView: React.FC<{ protocol: Protocol }> = ({ protocol }) => 
         </div>
       </header>
 
-      <main className="pt-8">
+      <div className="pt-8">
         <div className="flex flex-wrap gap-2"><span className="status-pill">Protocolo clínico</span><span className="status-pill"><Clock3 className="h-4 w-4" />Sessão {clinicalSession.id.slice(0, 8)}</span></div>
         <h1 className="page-title mt-5 max-w-3xl">{protocol.title}</h1>
         <p className="font-serif-text mt-5 border-l-4 border-mineral-400 pl-5 text-lg leading-relaxed text-slate-600 dark:text-slate-300 sm:text-xl">{protocol.description}</p>
@@ -81,7 +81,7 @@ export const ProtocolView: React.FC<{ protocol: Protocol }> = ({ protocol }) => 
         </section>
 
         {protocol.outcome?.length ? <section className="mt-12 border-t border-slate-200 pt-8 dark:border-white/10" aria-labelledby="outcome-heading"><h2 id="outcome-heading" className="flex items-center gap-2 text-xl font-extrabold"><TrendingUp className="h-5 w-5 text-mineral-600" />Resultados esperados</h2><div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{protocol.outcome.map((item) => <div key={item.label} className="surface p-4 text-center"><p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">{item.label}</p><p className="mt-2 text-xl font-extrabold">{item.value}</p></div>)}</div></section> : null}
-      </main>
+      </div>
       <AnimatePresence>{timer && <TimerDock timer={timer} onChange={setTimer} />}</AnimatePresence>
     </div>
   );

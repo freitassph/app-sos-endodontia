@@ -10,6 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "qa:browser": "node scripts/qa-browser.mjs",
+    "qa:responsive": "node scripts/qa-responsive-contract.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

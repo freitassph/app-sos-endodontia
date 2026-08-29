@@ -6,10 +6,10 @@
   :root { color-scheme: light; }
   .dark { color-scheme: dark; }
   * { box-sizing: border-box; }
-  html { min-width: 320px; scroll-behavior: smooth; }
+  html { min-width: 0; scroll-behavior: smooth; scroll-padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
   body {
     margin: 0;
-    min-width: 320px;
+    min-width: 0;
     min-height: 100vh;
     background: #F7F5EF;
     color: #071426;
@@ -41,9 +41,9 @@
     @apply inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl text-slate-600 transition hover:bg-clinical-mist hover:text-clinical-midnight dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white;
   }
   .bottom-nav-item {
-    @apply flex min-w-0 flex-col items-center justify-center gap-1 text-[10px] font-bold text-slate-600 transition dark:text-slate-300;
+    @apply flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-bold text-slate-600 transition dark:text-slate-300;
   }
-  .bottom-nav-item-active { @apply text-mineral-700 dark:text-mineral-300; }
+  .bottom-nav-item-active { @apply bg-mineral-50 text-mineral-700 dark:bg-mineral-400/10 dark:text-mineral-300; }
   .eyebrow { @apply text-[11px] font-extrabold uppercase tracking-[0.16em] text-slate-600 dark:text-slate-300; }
   .page-title { @apply text-3xl font-extrabold tracking-[-0.045em] text-clinical-midnight sm:text-4xl dark:text-white; }
   .page-subtitle { @apply mt-2 max-w-2xl text-base leading-relaxed text-slate-600 dark:text-slate-300; }
@@ -63,6 +63,17 @@
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #C8D2D8; border: 3px solid transparent; border-radius: 999px; background-clip: padding-box; }
 .dark ::-webkit-scrollbar-thumb { background: #40516A; border: 3px solid transparent; background-clip: padding-box; }
+
+@media (max-width: 359px), (max-width: 480px) and (max-height: 740px) {
+  .home-dashboard { padding-top: 1rem; padding-bottom: 1rem; }
+  .home-header { margin-bottom: 1rem; gap: .5rem; }
+  .home-subtitle, .home-session-pill { display: none; }
+  .home-completed-pill { padding: .25rem .625rem; font-size: .6875rem; }
+  .home-hero { padding: 1rem; }
+  .home-hero-heading { margin-top: 1.25rem; font-size: 1.75rem; line-height: 1.08; }
+  .home-hero-copy { margin-top: .75rem; font-size: .875rem; line-height: 1.5rem; }
+  .home-hero-cta { margin-top: 1.25rem; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

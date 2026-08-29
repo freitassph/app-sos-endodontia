@@ -9,16 +9,16 @@ export const Hero: React.FC = () => {
   const completed = Object.values(clinicalSession.checks).filter(Boolean).length;
 
   return (
-    <div className="mx-auto max-w-[1280px] px-4 py-7 sm:px-6 sm:py-10 lg:px-8">
-      <header className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="home-dashboard mx-auto max-w-[1280px] px-4 py-7 sm:px-6 sm:py-10 lg:px-8">
+      <header className="home-header mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="eyebrow">Central clínica de apoio</p>
           <h1 className="page-title mt-2">Painel clínico</h1>
-          <p className="page-subtitle">Decisão assistida, execução organizada e referências rápidas para urgências endodônticas.</p>
+          <p className="home-subtitle page-subtitle">Decisão assistida, execução organizada e referências rápidas para urgências endodônticas.</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <span className="status-pill"><span className="h-2 w-2 rounded-full bg-mineral-500" />Sessão local ativa</span>
-          <span className="status-pill"><CheckCircle2 className="h-4 w-4 text-mineral-600" />{completed} itens concluídos</span>
+          <span className="home-session-pill status-pill"><span className="h-2 w-2 rounded-full bg-mineral-500" />Sessão local ativa</span>
+          <span className="home-completed-pill status-pill"><CheckCircle2 className="h-4 w-4 text-mineral-600" />{completed} itens concluídos</span>
         </div>
       </header>
 
@@ -30,13 +30,13 @@ export const Hero: React.FC = () => {
       )}
 
       <div className="grid gap-5 md:grid-cols-2 desktop:grid-cols-12">
-        <section className="relative overflow-hidden rounded-3xl bg-clinical-midnight p-6 text-white shadow-elevated sm:p-8 md:col-span-2 desktop:col-span-7" aria-labelledby="triage-heading">
+        <section className="home-hero relative overflow-hidden rounded-3xl bg-clinical-midnight p-6 text-white shadow-elevated sm:p-8 md:col-span-2 desktop:col-span-7" aria-labelledby="triage-heading">
           <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-2/5 border-l border-white/10 bg-[radial-gradient(circle_at_center,rgba(8,169,122,.24),transparent_68%)] sm:block" />
           <div className="relative max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-mineral-300/25 bg-mineral-400/10 px-3 py-1.5 text-xs font-extrabold text-mineral-200"><Stethoscope className="h-4 w-4" />Próxima ação segura</span>
-            <h2 id="triage-heading" className="mt-8 text-3xl font-extrabold tracking-[-0.045em] sm:text-5xl">Paciente em urgência?</h2>
-            <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">Percorra uma triagem clínica assistida, revise os sinais e confirme profissionalmente a hipótese antes da conduta.</p>
-            <button type="button" onClick={() => navigate('diagnosis')} className="mt-8 inline-flex min-h-12 items-center gap-3 rounded-xl bg-mineral-300 px-5 py-3 font-extrabold text-clinical-midnight transition hover:bg-mineral-200 active:scale-[.985]" aria-label="Iniciar triagem clínica">
+            <h2 id="triage-heading" className="home-hero-heading mt-8 text-3xl font-extrabold tracking-[-0.045em] sm:text-5xl">Paciente em urgência?</h2>
+            <p className="home-hero-copy mt-4 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">Revise sinais, percorra a triagem e confirme profissionalmente a hipótese antes da conduta.</p>
+            <button type="button" onClick={() => navigate('diagnosis')} className="home-hero-cta mt-8 inline-flex min-h-12 items-center gap-3 rounded-xl bg-mineral-300 px-5 py-3 font-extrabold text-clinical-midnight transition hover:bg-mineral-200 active:scale-[.985]" aria-label="Iniciar triagem clínica">
               Iniciar triagem <ArrowRight className="h-5 w-5" />
             </button>
           </div>
