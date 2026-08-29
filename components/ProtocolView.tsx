@@ -1,355 +1,88 @@
-import React, { useState, useEffect } from 'react';
-import { Protocol } from '../types';
-import { ArrowLeft, CheckSquare, Square, Clock, AlertOctagon, Info, FileText, TrendingUp, Lightbulb, Skull, Briefcase, ChevronDown, Play, RotateCcw, Pause, X } from 'lucide-react';
-import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
+import React, { useEffect, useMemo, useState } from 'react';
+import { AlertOctagon, ArrowLeft, Briefcase, Check, ChevronDown, Clock3, FileText, Info, Lightbulb, Pause, Play, RotateCcw, TrendingUp, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import type { Protocol, ProtocolStep } from '../types';
 import { useApp } from '../context/AppContext';
+import { durationMinutesOptions } from '../src/lib/timer';
 
-interface ProtocolViewProps {
-  protocol: Protocol;
-}
+interface ActiveTimer { seconds: number; initialSeconds: number; stepTitle: string; running: boolean }
 
-// -- FLOATING TIMER COMPONENT --
-const FloatingTimer: React.FC<{ 
-  duration: string;
-  stepTitle: string; 
-  onClose: () => void; 
-}> = ({ 
-  duration, 
-  stepTitle, 
-  onClose 
-}) => {
-  const parseDuration = (str: string) => {
-    const match = str.match(/(\d+)/);
-    return match ? parseInt(match[0]) * 60 : 300; 
-  };
+const toneFor = (step: ProtocolStep) => {
+  if (step.type === 'alert') return 'border-rose-300 bg-rose-50 dark:border-rose-400/25 dark:bg-rose-400/10';
+  if (step.type === 'critical') return 'border-amber-300 bg-amber-50 dark:border-amber-400/25 dark:bg-amber-400/10';
+  if (step.type === 'prescription') return 'border-blue-200 bg-blue-50 dark:border-blue-400/20 dark:bg-blue-400/10';
+  if (step.type === 'tip') return 'border-violet-200 bg-violet-50 dark:border-violet-400/20 dark:bg-violet-400/10';
+  return 'border-slate-200 bg-white dark:border-white/10 dark:bg-clinical-ink';
+};
 
-  const initialTime = parseDuration(duration);
-  const [timeLeft, setTimeLeft] = useState(initialTime);
-  const [isActive, setIsActive] = useState(true);
-
+const TimerDock: React.FC<{ timer: ActiveTimer; onChange: React.Dispatch<React.SetStateAction<ActiveTimer | null>> }> = ({ timer, onChange }) => {
   useEffect(() => {
-    let interval: any = null;
-    if (isActive && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft(time => time - 1);
-      }, 1000);
-    } else if (timeLeft === 0) {
-      setIsActive(false);
-    }
-    return () => clearInterval(interval);
-  }, [isActive, timeLeft]);
-
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}:${s < 10 ? '0' : ''}${s}`;
-  };
-
-  const progress = ((initialTime - timeLeft) / initialTime) * 100;
-
+    if (!timer.running || timer.seconds <= 0) return;
+    const id = window.setInterval(() => onChange((current) => current ? { ...current, seconds: Math.max(0, current.seconds - 1), running: current.seconds > 1 } : null), 1000);
+    return () => window.clearInterval(id);
+  }, [onChange, timer.running, timer.seconds]);
+  const minutes = Math.floor(timer.seconds / 60);
+  const seconds = String(timer.seconds % 60).padStart(2, '0');
+  const progress = ((timer.initialSeconds - timer.seconds) / timer.initialSeconds) * 100;
   return (
-    <motion.div 
-      initial={{ y: 100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: 100, opacity: 0 }}
-      className="fixed bottom-24 md:bottom-8 right-4 md:right-8 z-50 w-[calc(100%-32px)] md:w-80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-slate-200 dark:border-slate-700 shadow-2xl rounded-2xl p-4 text-slate-900 dark:text-white overflow-hidden"
-    >
-      {/* Progress Background */}
-      <div className="absolute bottom-0 left-0 h-1 bg-accent-600 transition-all duration-1000 ease-linear" style={{ width: `${progress}%` }} />
-      
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Cronômetro Ativo</span>
-        </div>
-        <button onClick={onClose} className="p-1 hover:bg-slate-100 dark:hover:bg-white/10 rounded-full transition-colors">
-            <X className="w-4 h-4 text-slate-400" />
-        </button>
-      </div>
-
-      <div className="flex items-center justify-between">
-         <div>
-             <div className="text-3xl font-mono font-bold tabular-nums leading-none mb-1">
-                 {formatTime(timeLeft)}
-             </div>
-             <div className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[180px]">{stepTitle}</div>
-         </div>
-         
-         <div className="flex gap-2">
-            <button 
-                onClick={() => setTimeLeft(initialTime)} 
-                className="p-3 rounded-full bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20 transition-colors"
-                title="Reiniciar"
-            >
-                <RotateCcw className="w-5 h-5" />
-            </button>
-            <button 
-                onClick={() => setIsActive(!isActive)} 
-                className={`p-3 rounded-full transition-colors ${isActive ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-emerald-500 hover:bg-emerald-600 text-white'}`}
-            >
-                {isActive ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current" />}
-            </button>
-         </div>
-      </div>
-    </motion.div>
+    <motion.aside initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 20, opacity: 0 }} className="fixed bottom-[84px] left-4 right-4 z-50 overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 shadow-2xl md:bottom-6 md:left-auto md:right-6 md:w-[360px] dark:border-white/10 dark:bg-clinical-ink" aria-label="Cronômetro clínico">
+      <div className="absolute inset-x-0 bottom-0 h-1 bg-slate-100 dark:bg-white/10"><div className="h-full bg-mineral-500" style={{ width: `${progress}%` }} /></div>
+      <div className="flex items-start justify-between gap-4"><div><p className="eyebrow">Cronômetro {timer.running ? 'em andamento' : timer.seconds === 0 ? 'concluído' : 'pausado'}</p><p className="mt-2 font-mono text-3xl font-extrabold tabular-nums" aria-live="polite">{minutes}:{seconds}</p><p className="mt-1 max-w-[220px] truncate text-xs text-slate-600 dark:text-slate-300">{timer.stepTitle}</p></div><button type="button" onClick={() => onChange(null)} className="icon-button" aria-label="Fechar cronômetro"><X className="h-4 w-4" /></button></div>
+      <div className="mt-3 flex gap-2"><button type="button" onClick={() => onChange((current) => current ? { ...current, seconds: current.initialSeconds, running: false } : null)} className="secondary-action" aria-label="Reiniciar cronômetro"><RotateCcw className="h-4 w-4" />Reiniciar</button><button type="button" onClick={() => onChange((current) => current ? { ...current, running: !current.running } : null)} className="primary-action" aria-label={timer.running ? 'Pausar cronômetro' : 'Continuar cronômetro'}>{timer.running ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}{timer.running ? 'Pausar' : 'Continuar'}</button></div>
+    </motion.aside>
   );
 };
 
-export const ProtocolView: React.FC<ProtocolViewProps> = ({ protocol }) => {
-  const { navigate, checkedItems, toggleCheck } = useApp();
-  const [showMaterials, setShowMaterials] = React.useState(false);
-  
-  // Floating Timer State
-  const [activeTimer, setActiveTimer] = useState<{ duration: string, stepTitle: string } | null>(null);
+export const ProtocolView: React.FC<{ protocol: Protocol }> = ({ protocol }) => {
+  const { navigate, checkedItems, toggleCheck, clinicalSession } = useApp();
+  const [materialsOpen, setMaterialsOpen] = useState(false);
+  const [timer, setTimer] = useState<ActiveTimer | null>(null);
+  const checklistIds = useMemo(() => protocol.steps.flatMap((step, stepIndex) => step.type === 'checklist' ? step.content.map((_, itemIndex) => `protocol:${protocol.id}:${stepIndex}:${itemIndex}`) : []), [protocol]);
+  const completed = checklistIds.filter((id) => checkedItems[id]).length;
+  const completion = checklistIds.length ? Math.round((completed / checklistIds.length) * 100) : 0;
 
-  // Scroll Progress (Framer Motion)
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001
-  });
-  
+  const startTimer = (minutes: number, stepTitle: string) => setTimer({ seconds: minutes * 60, initialSeconds: minutes * 60, stepTitle, running: true });
+
   return (
-    <div className="max-w-3xl mx-auto px-4 pb-32 relative">
-      
-      {/* Sticky Header - Functional Progress Bar */}
-      <div className="sticky top-[60px] md:top-0 z-30 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 -mx-4 px-4 py-3 md:mb-8 shadow-sm transition-all duration-200">
-        <div className="flex items-center justify-between gap-3">
-          <button 
-            onClick={() => navigate('protocols')} 
-            className="p-2 -ml-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors active:scale-95"
-            aria-label="Voltar"
-          >
-            <ArrowLeft className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-          </button>
-          
-          <div className="flex-1 min-w-0">
-             <h2 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider truncate">
-                {protocol.shortTitle}
-             </h2>
-             {/* Progress Bar Visual - Now controlled by scrollProgress */}
-             <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mt-1.5">
-                <motion.div 
-                    className={`h-full ${protocol.color} origin-left`} 
-                    style={{ scaleX }}
-                />
-             </div>
+    <div className="mx-auto max-w-4xl px-4 pb-32 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-30 -mx-4 border-b border-slate-200 bg-clinical-ivory/95 px-4 py-3 backdrop-blur dark:border-white/10 dark:bg-clinical-midnight/95 sm:-mx-6 sm:px-6">
+        <div className="flex items-center gap-3">
+          <button type="button" onClick={() => navigate('protocols')} className="icon-button" aria-label="Voltar aos protocolos"><ArrowLeft className="h-5 w-5" /></button>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center justify-between gap-3"><p className="truncate text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">{protocol.shortTitle}</p><span className="text-xs font-bold text-mineral-700 dark:text-mineral-300">{completed}/{checklistIds.length} checkpoints</span></div>
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-white/10"><div className="h-full bg-mineral-500 transition-[width]" style={{ width: `${completion}%` }} /></div>
           </div>
-          
-          <div className={`w-3 h-3 rounded-full ${protocol.color} shadow-sm shrink-0`} />
         </div>
-      </div>
+      </header>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="pt-6 md:pt-0"
-      >
-        <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${protocol.color} bg-opacity-10 text-[10px] md:text-xs font-bold tracking-wide mb-4 ${protocol.color.replace('bg-', 'text-')}`}>
-          PROTOCOLO CLÍNICO
-        </div>
-        <h1 className="text-2xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4 md:mb-6 leading-tight tracking-tight">
-          {protocol.title}
-        </h1>
-        <p className="text-lg md:text-xl text-slate-600 dark:text-slate-300 font-serif-text leading-relaxed mb-8 border-l-4 border-slate-300 dark:border-slate-700 pl-4 md:pl-6 italic">
-          "{protocol.description}"
-        </p>
+      <main className="pt-8">
+        <div className="flex flex-wrap gap-2"><span className="status-pill">Protocolo clínico</span><span className="status-pill"><Clock3 className="h-4 w-4" />Sessão {clinicalSession.id.slice(0, 8)}</span></div>
+        <h1 className="page-title mt-5 max-w-3xl">{protocol.title}</h1>
+        <p className="font-serif-text mt-5 border-l-4 border-mineral-400 pl-5 text-lg leading-relaxed text-slate-600 dark:text-slate-300 sm:text-xl">{protocol.description}</p>
 
-        {/* Materials Accordion */}
-        {protocol.materials && (
-           <div className="mb-10 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
-              <button 
-                onClick={() => setShowMaterials(!showMaterials)}
-                className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:bg-slate-200"
-              >
-                  <div className="flex items-center gap-3 font-bold text-slate-700 dark:text-slate-200 text-sm md:text-base">
-                     <Briefcase className="w-5 h-5 text-accent-500" />
-                     Materiais Necessários
-                  </div>
-                  <ChevronDown className={`w-5 h-5 text-slate-400 transition-transform duration-200 ${showMaterials ? 'rotate-180' : ''}`} />
-              </button>
-              <AnimatePresence>
-                {showMaterials && (
-                    <motion.div 
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="border-t border-slate-100 dark:border-slate-800"
-                    >
-                        <div className="p-4 grid grid-cols-1 gap-3">
-                            {protocol.materials.map((m, i) => (
-                                <div key={i} className="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-400">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-accent-400 mt-2 shrink-0" />
-                                    <span className="leading-snug">{m}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </motion.div>
-                )}
-              </AnimatePresence>
-           </div>
-        )}
+        {protocol.materials?.length ? <section className="surface mt-7 overflow-hidden" aria-labelledby="materials-heading"><button type="button" onClick={() => setMaterialsOpen((open) => !open)} className="flex min-h-14 w-full items-center justify-between gap-3 p-4 text-left sm:px-5" aria-expanded={materialsOpen} aria-controls="materials-panel"><span className="flex items-center gap-3 font-extrabold"><Briefcase className="h-5 w-5 text-mineral-600" /><span id="materials-heading">Materiais necessários</span></span><ChevronDown className={`h-5 w-5 transition ${materialsOpen ? 'rotate-180' : ''}`} /></button><AnimatePresence initial={false}>{materialsOpen && <motion.ul id="materials-panel" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="grid gap-2 overflow-hidden border-t border-slate-100 p-4 sm:grid-cols-2 sm:p-5 dark:border-white/10">{protocol.materials.map((material) => <li key={material} className="flex gap-3 text-sm text-slate-600 dark:text-slate-300"><Check className="h-4 w-4 shrink-0 text-mineral-600" />{material}</li>)}</motion.ul>}</AnimatePresence></section> : null}
 
-        {/* Steps */}
-        <div className="space-y-8 md:space-y-12 mb-12">
-          {protocol.steps.map((step, index) => (
-            <div key={index} className="relative pl-6 md:pl-8 border-l-2 border-slate-200 dark:border-slate-800 pb-10 last:pb-0 last:border-0">
-              <div className={`absolute -left-[19px] md:-left-[20px] top-0 flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full bg-slate-50 dark:bg-slate-950 border-2 ${index === protocol.steps.length - 1 ? 'border-emerald-500 text-emerald-500' : 'border-slate-300 dark:border-slate-700 text-slate-500'} font-bold shadow-sm z-10 text-sm md:text-base`}>
-                {index + 1}
-              </div>
-              
-              <div className="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-2">
-                <h3 className="text-lg md:text-2xl font-bold text-slate-800 dark:text-slate-100 leading-tight">{step.title}</h3>
-                {step.duration && (
-                  <span className="self-start md:self-auto inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[10px] md:text-xs font-bold text-slate-500 uppercase tracking-wide">
-                    <Clock className="w-3 h-3" /> {step.duration}
-                  </span>
-                )}
-              </div>
-
-              <div className={`p-5 md:p-6 rounded-2xl transition-all shadow-sm ${
-                step.type === 'alert' ? 'bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900' : 
-                step.type === 'critical' ? 'bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900' :
-                step.type === 'prescription' ? 'bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900' :
-                step.type === 'tip' ? 'bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900' :
-                'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800'
-              }`}>
-                {/* Content Logic */}
-                <div className="space-y-4">
-                    {/* Checklist Logic */}
-                    {(step.type === 'checklist' || step.type === 'text') && (
-                        <ul className="space-y-4">
-                            {step.content.map((item, i) => {
-                                const itemId = `protocol-${protocol.id}-step-${index}-item-${i}`;
-                                const isChecked = checkedItems[itemId];
-                                return (
-                                    <li 
-                                        key={i} 
-                                        onClick={() => toggleCheck(itemId)}
-                                        className={`flex items-start gap-4 cursor-pointer group select-none transition-all touch-manipulation p-1 -m-1 rounded-lg active:bg-black/5 dark:active:bg-white/5 ${isChecked ? 'opacity-50' : 'opacity-100'}`}
-                                    >
-                                        {isChecked ? (
-                                            <CheckSquare className="w-6 h-6 text-emerald-500 shrink-0 mt-0.5 transition-transform scale-110" />
-                                        ) : (
-                                            <Square className="w-6 h-6 text-slate-300 dark:text-slate-600 shrink-0 mt-0.5 group-hover:text-accent-500 transition-colors" />
-                                        )}
-                                        <span className={`text-base md:text-lg leading-snug transition-all ${isChecked ? 'line-through text-slate-400' : 'text-slate-700 dark:text-slate-300'}`}>
-                                            {item}
-                                        </span>
-                                    </li>
-                                );
-                            })}
-                        </ul>
-                    )}
-
-                    {step.type === 'tip' && (
-                        <div className="space-y-3">
-                             <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold uppercase text-xs tracking-wider mb-2">
-                                    <Lightbulb className="w-4 h-4" /> Dica de Ouro
-                             </div>
-                            {step.content.map((item, i) => (
-                                <p key={i} className="text-slate-700 dark:text-slate-300 text-base md:text-lg leading-relaxed font-serif-text">{item}</p>
-                            ))}
-                        </div>
-                    )}
-
-                    {(step.type === 'info') && (
-                        <div className="flex gap-4">
-                            <Info className="w-6 h-6 text-blue-500 shrink-0 mt-1" />
-                            <div className="space-y-2 text-slate-700 dark:text-slate-300">
-                                {step.content.map((item, i) => <p key={i} className="text-base md:text-lg">{item}</p>)}
-                            </div>
-                        </div>
-                    )}
-
-                    {(step.type === 'alert' || step.type === 'critical') && (
-                        <div className="flex gap-4">
-                            {step.type === 'alert' ? <Skull className="w-8 h-8 text-red-500 shrink-0" /> : <AlertOctagon className="w-8 h-8 text-amber-500 shrink-0" />}
-                            <div>
-                                <h4 className={`font-bold mb-2 uppercase text-xs md:text-sm tracking-wider ${step.type === 'alert' ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'}`}>
-                                    {step.type === 'alert' ? 'Perigo Iminente' : 'Atenção Crítica'}
-                                </h4>
-                                <div className="space-y-2 text-slate-800 dark:text-slate-200 font-medium">
-                                    {step.content.map((item, i) => <p key={i} className="text-base md:text-lg">{item}</p>)}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {step.type === 'prescription' && (
-                        <div className="flex flex-col gap-4">
-                            <div className="flex gap-4">
-                                <FileText className="w-6 h-6 text-blue-500 shrink-0 mt-1" />
-                                <div className="space-y-2 text-slate-700 dark:text-slate-300">
-                                {step.content.map((item, i) => <p key={i} className="font-medium text-base md:text-lg">{item}</p>)}
-                                </div>
-                            </div>
-                            <button 
-                                onClick={() => navigate('prescriptions')}
-                                className="self-start mt-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold transition-colors shadow-lg shadow-blue-500/20 active:scale-95 touch-manipulation"
-                            >
-                                Abrir Receituário &rarr;
-                            </button>
-                        </div>
-                    )}
-
-                    {/* Integrated Timer Trigger */}
-                    {step.duration && (step.content.some(c => c.toLowerCase().includes('espere') || c.toLowerCase().includes('aguarde'))) && (
-                        <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                            <button 
-                                onClick={() => setActiveTimer({ duration: step.duration!, stepTitle: step.title })}
-                                className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors group border border-slate-200 dark:border-slate-700"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-slate-200 dark:bg-slate-900 rounded-lg text-slate-600 dark:text-slate-400 group-hover:text-accent-500 transition-colors">
-                                        <Clock className="w-5 h-5" />
-                                    </div>
-                                    <div className="text-left">
-                                        <div className="text-xs font-bold text-slate-500 uppercase">Iniciar Cronômetro</div>
-                                        <div className="font-bold text-slate-900 dark:text-white">Tempo sugerido: {step.duration}</div>
-                                    </div>
-                                </div>
-                                <Play className="w-5 h-5 text-accent-500" />
-                            </button>
-                        </div>
-                    )}
+        <section className="mt-10 space-y-8" aria-label="Etapas do protocolo">
+          {protocol.steps.map((step, stepIndex) => {
+            const options = step.duration ? durationMinutesOptions(step.duration) : [];
+            return (
+              <article key={`${step.title}-${stepIndex}`} className="relative pl-10 sm:pl-14">
+                <div className="absolute left-0 top-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-mineral-300 bg-clinical-ivory text-xs font-extrabold text-mineral-800 dark:bg-clinical-midnight dark:text-mineral-200 sm:h-10 sm:w-10">{stepIndex + 1}</div>
+                {stepIndex < protocol.steps.length - 1 && <div className="absolute bottom-[-2rem] left-[15px] top-9 w-px bg-slate-200 dark:bg-white/10 sm:left-[19px] sm:top-11" />}
+                <div className="flex flex-wrap items-start justify-between gap-2"><h2 className="text-xl font-extrabold tracking-tight sm:text-2xl">{step.title}</h2>{step.duration && <span className="status-pill"><Clock3 className="h-4 w-4" />{step.duration}</span>}</div>
+                <div className={`mt-4 rounded-2xl border p-5 sm:p-6 ${toneFor(step)}`}>
+                  {step.type === 'checklist' ? <ul className="space-y-3">{step.content.map((item, itemIndex) => { const id = `protocol:${protocol.id}:${stepIndex}:${itemIndex}`; return <li key={item}><label className="flex cursor-pointer items-start gap-3 rounded-xl p-1 transition hover:bg-black/5 dark:hover:bg-white/5"><input type="checkbox" checked={!!checkedItems[id]} onChange={() => toggleCheck(id)} className="mt-0.5 h-5 w-5 shrink-0 accent-[#08A97A]" /><span className={`leading-relaxed ${checkedItems[id] ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'}`}>{item}</span></label></li>; })}</ul> : <div className="flex gap-3">{step.type === 'alert' || step.type === 'critical' ? <AlertOctagon className="mt-0.5 h-5 w-5 shrink-0 text-amber-700 dark:text-amber-300" /> : step.type === 'tip' ? <Lightbulb className="mt-0.5 h-5 w-5 shrink-0 text-violet-700 dark:text-violet-300" /> : step.type === 'prescription' ? <FileText className="mt-0.5 h-5 w-5 shrink-0 text-blue-700 dark:text-blue-300" /> : <Info className="mt-0.5 h-5 w-5 shrink-0 text-mineral-700 dark:text-mineral-300" />}<div className="space-y-3">{step.content.map((item) => <p key={item} className="leading-relaxed text-slate-700 dark:text-slate-200">{item}</p>)}</div></div>}
+                  {step.type === 'prescription' && <button type="button" onClick={() => navigate('prescriptions')} className="secondary-action mt-5">Abrir modelos de apoio <ArrowLeft className="h-4 w-4 rotate-180" /></button>}
+                  {options.length > 0 && <div className="mt-5 border-t border-slate-200 pt-4 dark:border-white/10"><p className="text-xs font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">Cronômetro sugerido</p><div className="mt-3 flex flex-wrap gap-2">{options.map((minutes) => <button key={minutes} type="button" onClick={() => startTimer(minutes, step.title)} className="secondary-action"><Play className="h-4 w-4" />Iniciar {minutes} min</button>)}</div></div>}
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              </article>
+            );
+          })}
+        </section>
 
-        {/* Outcomes */}
-        {protocol.outcome && (
-          <div className="mt-8 pt-10 border-t border-slate-200 dark:border-slate-800">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-emerald-500" />
-              Resultados Esperados
-            </h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {protocol.outcome.map((item, index) => (
-                <div key={index} className="bg-slate-50 dark:bg-slate-900 p-4 md:p-5 rounded-2xl text-center border border-slate-100 dark:border-slate-800 shadow-sm">
-                   <div className="text-[10px] md:text-xs text-slate-500 uppercase tracking-wide font-bold mb-2">{item.label}</div>
-                   <div className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{item.value}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </motion.div>
-
-      {/* Floating Global Timer */}
-      <AnimatePresence>
-        {activeTimer && (
-            <FloatingTimer 
-                key={activeTimer.stepTitle} // Reset timer if step changes
-                duration={activeTimer.duration} 
-                stepTitle={activeTimer.stepTitle} 
-                onClose={() => setActiveTimer(null)} 
-            />
-        )}
-      </AnimatePresence>
+        {protocol.outcome?.length ? <section className="mt-12 border-t border-slate-200 pt-8 dark:border-white/10" aria-labelledby="outcome-heading"><h2 id="outcome-heading" className="flex items-center gap-2 text-xl font-extrabold"><TrendingUp className="h-5 w-5 text-mineral-600" />Resultados esperados</h2><div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">{protocol.outcome.map((item) => <div key={item.label} className="surface p-4 text-center"><p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-600 dark:text-slate-300">{item.label}</p><p className="mt-2 text-xl font-extrabold">{item.value}</p></div>)}</div></section> : null}
+      </main>
+      <AnimatePresence>{timer && <TimerDock timer={timer} onChange={setTimer} />}</AnimatePresence>
     </div>
   );
 };

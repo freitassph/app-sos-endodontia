@@ -1,193 +1,74 @@
 import React from 'react';
-import { Activity, BookOpen, FileText, ChevronRight, Zap, Shield, Search, Calculator, ArrowUpRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ArrowRight, BookOpen, CheckCircle2, Clock3, FileText, MessageSquare, Search, ShieldCheck, Stethoscope } from 'lucide-react';
+import { PROTOCOLS } from '../data';
 import { useApp } from '../context/AppContext';
 import { Card } from './ui/Card';
 
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
-};
-
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0 }
-};
-
 export const Hero: React.FC = () => {
-  const { navigate, toggleSearch } = useApp();
+  const { navigate, toggleSearch, clinicalSession, recoveredSession } = useApp();
+  const completed = Object.values(clinicalSession.checks).filter(Boolean).length;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6 md:py-10">
-      
-      {/* Header Section */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4"
-      >
+    <div className="mx-auto max-w-[1280px] px-4 py-7 sm:px-6 sm:py-10 lg:px-8">
+      <header className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-slate-500 dark:text-slate-400 font-medium mb-1">Bem-vindo, Doutor(a)</h2>
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
-            Painel de Controle
-          </h1>
+          <p className="eyebrow">Central clínica de apoio</p>
+          <h1 className="page-title mt-2">Painel clínico</h1>
+          <p className="page-subtitle">Decisão assistida, execução organizada e referências rápidas para urgências endodônticas.</p>
         </div>
-        <div className="flex items-center gap-2">
-           <span className="flex h-3 w-3 relative">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-            </span>
-            <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Sistema Operacional v1.0</span>
+        <div className="flex flex-wrap gap-2">
+          <span className="status-pill"><span className="h-2 w-2 rounded-full bg-mineral-500" />Sessão local ativa</span>
+          <span className="status-pill"><CheckCircle2 className="h-4 w-4 text-mineral-600" />{completed} itens concluídos</span>
         </div>
-      </motion.div>
+      </header>
 
-      {/* Bento Grid */}
-      <motion.div 
-        variants={container}
-        initial="hidden"
-        animate="show"
-        className="grid grid-cols-1 md:grid-cols-4 md:grid-rows-3 gap-4 h-auto md:h-[600px]"
-      >
-        
-        {/* Main Action - Diagnosis (Large Block) */}
-        <motion.div variants={item} className="md:col-span-2 md:row-span-2 relative group">
-          <button 
-             onClick={() => navigate('diagnosis')}
-             className="w-full h-full text-left"
-          >
-             <Card className="h-full !bg-slate-900 dark:!bg-white text-white dark:text-slate-900 border-none shadow-2xl shadow-slate-900/20 relative overflow-hidden" noPadding>
-                {/* Abstract Background Animation */}
-                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-soft-light"></div>
-                <div className="absolute top-0 right-0 w-64 h-64 bg-accent-500/30 rounded-full blur-[80px] -mr-16 -mt-16 group-hover:bg-accent-500/50 transition-colors duration-500"></div>
-                
-                <div className="relative z-10 p-8 h-full flex flex-col justify-between">
-                   <div className="flex justify-between items-start">
-                      <div className="p-3 bg-white/10 dark:bg-slate-900/10 backdrop-blur-md rounded-2xl">
-                         <Activity className="w-8 h-8 text-emerald-400 dark:text-emerald-600" />
-                      </div>
-                      <div className="bg-emerald-500/20 backdrop-blur-sm border border-emerald-500/30 px-3 py-1 rounded-full text-xs font-bold text-emerald-300 dark:text-emerald-700 uppercase tracking-wide">
-                        Início Rápido
-                      </div>
-                   </div>
+      {recoveredSession && (
+        <div role="status" className="mb-6 flex items-start gap-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-amber-950 dark:border-amber-400/30 dark:bg-amber-400/10 dark:text-amber-100">
+          <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0" />
+          <div><p className="font-bold">Sessão recuperada com segurança</p><p className="text-sm">A sessão anterior não pôde ser lida. Os itens foram reiniciados para evitar marcações incorretas.</p></div>
+        </div>
+      )}
 
-                   <div>
-                      <h2 className="text-3xl md:text-4xl font-bold mb-2 leading-tight">Paciente com Dor?</h2>
-                      <p className="text-slate-300 dark:text-slate-600 text-lg mb-6 max-w-sm">
-                        Inicie o fluxo de decisão clínica guiada para diagnóstico preciso e conduta imediata.
-                      </p>
-                      <div className="inline-flex items-center gap-2 font-bold bg-white/10 dark:bg-slate-900/5 hover:bg-white/20 dark:hover:bg-slate-900/10 px-6 py-3 rounded-xl transition-all group-hover:pl-8">
-                         Iniciar Diagnóstico <ChevronRight className="w-5 h-5" />
-                      </div>
-                   </div>
-                </div>
-             </Card>
-          </button>
-        </motion.div>
+      <div className="grid gap-5 md:grid-cols-2 desktop:grid-cols-12">
+        <section className="relative overflow-hidden rounded-3xl bg-clinical-midnight p-6 text-white shadow-elevated sm:p-8 md:col-span-2 desktop:col-span-7" aria-labelledby="triage-heading">
+          <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-2/5 border-l border-white/10 bg-[radial-gradient(circle_at_center,rgba(8,169,122,.24),transparent_68%)] sm:block" />
+          <div className="relative max-w-2xl">
+            <span className="inline-flex items-center gap-2 rounded-full border border-mineral-300/25 bg-mineral-400/10 px-3 py-1.5 text-xs font-extrabold text-mineral-200"><Stethoscope className="h-4 w-4" />Próxima ação segura</span>
+            <h2 id="triage-heading" className="mt-8 text-3xl font-extrabold tracking-[-0.045em] sm:text-5xl">Paciente em urgência?</h2>
+            <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">Percorra uma triagem clínica assistida, revise os sinais e confirme profissionalmente a hipótese antes da conduta.</p>
+            <button type="button" onClick={() => navigate('diagnosis')} className="mt-8 inline-flex min-h-12 items-center gap-3 rounded-xl bg-mineral-300 px-5 py-3 font-extrabold text-clinical-midnight transition hover:bg-mineral-200 active:scale-[.985]" aria-label="Iniciar triagem clínica">
+              Iniciar triagem <ArrowRight className="h-5 w-5" />
+            </button>
+          </div>
+        </section>
 
-        {/* Protocols (Medium Vertical) */}
-        <motion.div variants={item} className="md:col-span-1 md:row-span-2">
-            <Card onClick={() => navigate('protocols')} className="h-full hover:bg-slate-50 dark:hover:bg-slate-800/50 group" noPadding>
-               <div className="p-6 h-full flex flex-col">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                      <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Protocolos Clínicos</h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 flex-1">
-                     Acesse diretamente os guias de tratamento passo-a-passo.
-                  </p>
-                  
-                  <div className="space-y-2">
-                     {['Pulpite Irreversível', 'Abscesso Agudo', 'Traumatismo'].map((p, i) => (
-                        <div key={i} className="text-xs font-medium text-slate-600 dark:text-slate-300 p-2 bg-slate-100 dark:bg-slate-800 rounded-lg flex items-center justify-between">
-                           {p} <ChevronRight className="w-3 h-3 text-slate-400" />
-                        </div>
-                     ))}
-                  </div>
-               </div>
-            </Card>
-        </motion.div>
+        <Card className="md:col-span-1 desktop:col-span-5" onClick={() => navigate('protocols')} ariaLabel="Abrir protocolos clínicos">
+          <div className="flex h-full flex-col">
+            <div className="flex items-center justify-between"><div className="rounded-xl bg-mineral-50 p-2.5 text-mineral-700 dark:bg-mineral-400/10 dark:text-mineral-200"><BookOpen className="h-5 w-5" /></div><ArrowRight className="h-5 w-5 text-slate-400" /></div>
+            <h2 className="mt-6 text-2xl font-extrabold tracking-tight">Protocolos clínicos</h2>
+            <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300">Acesse o passo a passo, materiais, checkpoints e alertas críticos.</p>
+            <ul className="mt-6 divide-y divide-slate-100 border-y border-slate-100 dark:divide-white/10 dark:border-white/10">
+              {PROTOCOLS.slice(0, 3).map((protocol) => <li key={protocol.id} className="flex items-center justify-between py-3 text-sm font-bold"><span className="line-clamp-1">{protocol.title}</span><ArrowRight className="h-4 w-4 shrink-0 text-slate-400" /></li>)}
+            </ul>
+          </div>
+        </Card>
 
-        {/* Quick Search (Small) */}
-        <motion.div variants={item} className="md:col-span-1 md:row-span-1">
-             <Card onClick={() => toggleSearch(true)} className="h-full !bg-slate-100 dark:!bg-slate-800 border-none group">
-                <div className="flex flex-col justify-center h-full items-center text-center gap-3">
-                    <Search className="w-8 h-8 text-slate-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors" />
-                    <div className="text-sm font-bold text-slate-600 dark:text-slate-300">Buscar (Cmd+K)</div>
-                </div>
-             </Card>
-        </motion.div>
+        <Card className="desktop:col-span-4" onClick={() => toggleSearch(true)} ariaLabel="Pesquisar conteúdo clínico">
+          <div className="flex items-center gap-4"><div className="rounded-xl bg-clinical-mist p-3 text-clinical-ink dark:bg-white/5 dark:text-white"><Search className="h-5 w-5" /></div><div><p className="font-extrabold">Busca clínica</p><p className="text-sm text-slate-600 dark:text-slate-300">Encontre uma resposta sem percorrer menus.</p></div></div>
+        </Card>
+        <Card className="desktop:col-span-4" onClick={() => navigate('prescriptions')} ariaLabel="Abrir modelos de apoio à prescrição">
+          <div className="flex items-center gap-4"><div className="rounded-xl bg-blue-50 p-3 text-blue-700 dark:bg-blue-400/10 dark:text-blue-200"><FileText className="h-5 w-5" /></div><div><p className="font-extrabold">Modelos de prescrição</p><p className="text-sm text-slate-600 dark:text-slate-300">Revise segurança antes de copiar.</p></div></div>
+        </Card>
+        <Card className="desktop:col-span-4" onClick={() => navigate('scripts')} ariaLabel="Abrir scripts de comunicação clínica">
+          <div className="flex items-center gap-4"><div className="rounded-xl bg-violet-50 p-3 text-violet-700 dark:bg-violet-400/10 dark:text-violet-200"><MessageSquare className="h-5 w-5" /></div><div><p className="font-extrabold">Comunicação clínica</p><p className="text-sm text-slate-600 dark:text-slate-300">Oriente com clareza e segurança.</p></div></div>
+        </Card>
+      </div>
 
-        {/* Prescriptions (Small) */}
-        <motion.div variants={item} className="md:col-span-1 md:row-span-1">
-            <Card onClick={() => navigate('prescriptions')} className="h-full group">
-               <div className="flex flex-col h-full justify-between">
-                  <div className="flex justify-between items-start">
-                     <FileText className="w-6 h-6 text-indigo-500" />
-                     <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-indigo-500 transition-colors" />
-                  </div>
-                  <div>
-                     <div className="font-bold text-slate-900 dark:text-white">Receituário</div>
-                     <div className="text-xs text-slate-500">Copie e cole</div>
-                  </div>
-               </div>
-            </Card>
-        </motion.div>
-
-        {/* Bottom Row - Tools & Stats */}
-        <motion.div variants={item} className="md:col-span-1 md:row-span-1">
-             <Card onClick={() => navigate('references')} className="h-full group !bg-gradient-to-br !from-amber-50 !to-orange-50 dark:!from-amber-950/30 dark:!to-orange-950/30 border-amber-100 dark:border-amber-900/50">
-                 <div className="flex items-center gap-3 h-full">
-                    <div className="p-2 bg-white dark:bg-slate-900 rounded-lg shadow-sm">
-                       <Calculator className="w-5 h-5 text-amber-500" />
-                    </div>
-                    <div>
-                       <div className="font-bold text-amber-900 dark:text-amber-100">Calculadora</div>
-                       <div className="text-xs text-amber-700 dark:text-amber-300">Custos & Lucro</div>
-                    </div>
-                 </div>
-             </Card>
-        </motion.div>
-
-        <motion.div variants={item} className="md:col-span-1 md:row-span-1">
-            <Card onClick={() => navigate('manifesto')} className="h-full group">
-                 <div className="flex items-center gap-3 h-full">
-                    <div className="p-2 bg-primary-50 dark:bg-primary-900/50 rounded-lg text-primary-600 dark:text-primary-400">
-                       <Shield className="w-5 h-5" />
-                    </div>
-                    <div>
-                       <div className="font-bold text-slate-900 dark:text-white">O Manifesto</div>
-                       <div className="text-xs text-slate-500">Filosofia SOS</div>
-                    </div>
-                 </div>
-            </Card>
-        </motion.div>
-
-        <motion.div variants={item} className="md:col-span-2 md:row-span-1">
-            <Card onClick={() => navigate('scripts')} className="h-full !bg-slate-900 dark:!bg-slate-800 text-white group overflow-hidden relative" noPadding>
-                 <div className="absolute right-0 top-0 w-32 h-32 bg-purple-500/20 rounded-full blur-3xl -mr-10 -mt-10"></div>
-                 <div className="p-6 flex items-center justify-between h-full relative z-10">
-                     <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center border border-purple-500/30">
-                           <Zap className="w-5 h-5 text-purple-400" />
-                        </div>
-                        <div>
-                           <div className="font-bold text-lg">Scripts de Comunicação</div>
-                           <div className="text-sm text-slate-400">O que falar para acalmar o paciente.</div>
-                        </div>
-                     </div>
-                     <div className="bg-white/10 p-2 rounded-full group-hover:bg-white/20 transition-colors">
-                        <ChevronRight className="w-5 h-5 text-white" />
-                     </div>
-                 </div>
-            </Card>
-        </motion.div>
-
-      </motion.div>
+      <section className="mt-6 grid gap-4 rounded-3xl border border-slate-200 bg-white p-5 sm:grid-cols-3 dark:border-white/10 dark:bg-white/5" aria-labelledby="method-heading">
+        <div><p className="eyebrow">Método SOS</p><h2 id="method-heading" className="mt-2 text-xl font-extrabold">Clareza sob pressão</h2></div>
+        <div className="flex gap-3 text-sm text-slate-600 dark:text-slate-300"><Clock3 className="h-5 w-5 shrink-0 text-mineral-600" /><p>Fluxos curtos para decidir, executar e revisar.</p></div>
+        <div className="flex gap-3 text-sm text-slate-600 dark:text-slate-300"><ShieldCheck className="h-5 w-5 shrink-0 text-mineral-600" /><p>Apoio clínico assistivo; confirmação profissional permanece obrigatória.</p></div>
+      </section>
     </div>
   );
 };

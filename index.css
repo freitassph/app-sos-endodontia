@@ -1,86 +1,75 @@
-/* Base styles managed by Tailwind CDN, adding custom overrides here */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  transition: background-color 0.3s ease, color 0.3s ease;
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-/* Custom Utilities */
-.font-serif-text {
-  font-family: 'Libre Baskerville', serif;
-}
-
-.pb-safe {
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-.pt-safe {
-  padding-top: env(safe-area-inset-top);
-}
-
-.min-h-touch {
-  min-height: 44px;
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: transparent; 
-}
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1; 
-  border-radius: 4px;
-}
-.dark ::-webkit-scrollbar-thumb {
-  background: #334155; 
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8; 
+@layer base {
+  :root { color-scheme: light; }
+  .dark { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  html { min-width: 320px; scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    background: #F7F5EF;
+    color: #071426;
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .dark body { background: #071426; color: #F7F5EF; }
+  button, input, textarea, select { font: inherit; }
+  button { -webkit-tap-highlight-color: transparent; }
+  :focus-visible { outline: 3px solid #14C99A; outline-offset: 3px; }
+  ::selection { background: rgba(8, 169, 122, .22); }
 }
 
-/* Spotlight Effect Utilities */
-.spotlight-card {
-  position: relative;
-  overflow: hidden;
+@layer components {
+  .surface {
+    @apply rounded-2xl border border-slate-200 bg-white text-clinical-midnight shadow-surface dark:border-white/10 dark:bg-clinical-ink dark:text-white;
+  }
+  .surface-interactive {
+    @apply transition duration-200 hover:-translate-y-0.5 hover:border-mineral-400 hover:shadow-elevated active:translate-y-0;
+  }
+  .nav-item {
+    @apply flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-slate-600 transition hover:bg-clinical-mist hover:text-clinical-midnight dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white;
+  }
+  .nav-item-active {
+    @apply bg-mineral-50 text-mineral-800 ring-1 ring-inset ring-mineral-200 dark:bg-mineral-400/10 dark:text-mineral-200 dark:ring-mineral-400/20;
+  }
+  .icon-button {
+    @apply inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl text-slate-600 transition hover:bg-clinical-mist hover:text-clinical-midnight dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white;
+  }
+  .bottom-nav-item {
+    @apply flex min-w-0 flex-col items-center justify-center gap-1 text-[10px] font-bold text-slate-600 transition dark:text-slate-300;
+  }
+  .bottom-nav-item-active { @apply text-mineral-700 dark:text-mineral-300; }
+  .eyebrow { @apply text-[11px] font-extrabold uppercase tracking-[0.16em] text-slate-600 dark:text-slate-300; }
+  .page-title { @apply text-3xl font-extrabold tracking-[-0.045em] text-clinical-midnight sm:text-4xl dark:text-white; }
+  .page-subtitle { @apply mt-2 max-w-2xl text-base leading-relaxed text-slate-600 dark:text-slate-300; }
+  .primary-action { @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-clinical-midnight px-5 py-3 text-sm font-extrabold text-white transition hover:bg-clinical-ink active:scale-[.985] dark:bg-mineral-300 dark:text-clinical-midnight dark:hover:bg-mineral-200; }
+  .secondary-action { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-clinical-ink transition hover:border-mineral-400 hover:bg-mineral-50 dark:border-white/15 dark:bg-white/5 dark:text-white dark:hover:bg-white/10; }
+  .field { @apply w-full rounded-xl border border-slate-300 bg-white px-3 py-3 text-clinical-midnight outline-none transition focus:border-mineral-500 focus:ring-2 focus:ring-mineral-200 dark:border-white/15 dark:bg-clinical-midnight dark:text-white dark:focus:ring-mineral-400/20; }
+  .status-pill { @apply inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-600 dark:border-white/10 dark:bg-white/5 dark:text-slate-200; }
 }
 
-.spotlight-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(
-    800px circle at var(--mouse-x) var(--mouse-y),
-    rgba(255, 255, 255, 0.06),
-    transparent 40%
-  );
-  z-index: 10;
-  opacity: 0;
-  transition: opacity 0.5s;
-  pointer-events: none;
-}
+.font-serif-text { font-family: 'Libre Baskerville', Georgia, serif; }
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+.pt-safe { padding-top: env(safe-area-inset-top); }
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
 
-.dark .spotlight-card::before {
-  background: radial-gradient(
-    800px circle at var(--mouse-x) var(--mouse-y),
-    rgba(255, 255, 255, 0.08),
-    transparent 40%
-  );
-}
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #C8D2D8; border: 3px solid transparent; border-radius: 999px; background-clip: padding-box; }
+.dark ::-webkit-scrollbar-thumb { background: #40516A; border: 3px solid transparent; background-clip: padding-box; }
 
-.spotlight-card:hover::before {
-  opacity: 1;
-}
-
-/* Bento Grid Textures */
-.bg-grid-pattern {
-  background-image: radial-gradient(rgba(148, 163, 184, 0.1) 1px, transparent 1px);
-  background-size: 24px 24px;
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+  }
 }

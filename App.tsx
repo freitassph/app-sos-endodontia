@@ -1,4 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Activity, ArrowRight, HelpCircle, MessageSquare, Pill, Search, X } from 'lucide-react';
+import { AnimatePresence, motion, MotionConfig } from 'framer-motion';
 import { Layout } from './components/Layout';
 import { Hero } from './components/Hero';
 import { DiagnosisWizard } from './components/DiagnosisWizard';
@@ -7,224 +9,164 @@ import { PrescriptionList } from './components/PrescriptionList';
 import { ScriptList } from './components/ScriptList';
 import { ReferenceView } from './components/ReferenceView';
 import { ManifestoView } from './components/ManifestoView';
-import { PROTOCOLS, PRESCRIPTIONS, FAQS } from './data';
+import { PROTOCOLS, PRESCRIPTIONS, FAQS, SCRIPTS } from './data';
 import { AppProvider, useApp } from './context/AppContext';
 import { ToastProvider } from './hooks/useToast';
-import { Activity, Pill, HelpCircle, ChevronRight, Search } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
 
-// Global Search Component
-const SearchOverlay = () => {
-    const { isSearchOpen, toggleSearch, navigate } = useApp();
-    const [query, setQuery] = useState('');
-
-    const filteredResults = useMemo(() => {
-        if (!query || query.length < 2) return [];
-        const lowerQ = query.toLowerCase();
-        
-        const protocols = PROTOCOLS.filter(p => 
-            p.title.toLowerCase().includes(lowerQ) || 
-            p.description.toLowerCase().includes(lowerQ)
-        ).map(p => ({ type: 'Protocolo', label: p.title, id: p.id, target: 'protocol' }));
-
-        const prescriptions = PRESCRIPTIONS.filter(p => 
-            p.title.toLowerCase().includes(lowerQ) || 
-            p.condition.toLowerCase().includes(lowerQ) ||
-            p.medications.some(m => m.name.toLowerCase().includes(lowerQ))
-        ).map(p => ({ type: 'Prescrição', label: p.title, id: 'prescriptions', target: 'view' }));
-
-        const faqs = FAQS.filter(f => 
-            f.question.toLowerCase().includes(lowerQ) || 
-            f.answer.toLowerCase().includes(lowerQ)
-        ).map(f => ({ type: 'FAQ', label: f.question, id: 'faq', target: 'view' }));
-
-        return [...protocols, ...prescriptions, ...faqs].slice(0, 6);
-    }, [query]);
-
-    useEffect(() => {
-        if (isSearchOpen) setQuery('');
-    }, [isSearchOpen]);
-
-    // Handle Keyboard Shortcut inside the component to toggle visibility logic globally
-    useEffect(() => {
-        const down = (e: KeyboardEvent) => {
-          if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
-            e.preventDefault();
-            toggleSearch();
-          }
-          if (e.key === 'Escape') toggleSearch(false);
-        }
-        document.addEventListener('keydown', down);
-        return () => document.removeEventListener('keydown', down);
-    }, [toggleSearch]);
-
-    if (!isSearchOpen) return null;
-
-    const handleSelect = (item: any) => {
-        if (item.id === 'prescriptions') navigate('prescriptions');
-        else if (item.id === 'faq') navigate('faq');
-        else if (item.id.startsWith('p')) navigate('protocol-detail', item.id);
-        else navigate('home');
-    };
-
-    return (
-        <div className="fixed inset-0 z-[60] bg-slate-950/80 backdrop-blur-sm flex items-start justify-center pt-20 px-4 transition-all duration-200" onClick={() => toggleSearch(false)}>
-            <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="w-full max-w-xl bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-800 flex flex-col max-h-[70vh]" 
-                onClick={e => e.stopPropagation()}
-            >
-                <div className="p-4 border-b border-slate-800 flex items-center gap-3">
-                    <Search className="w-5 h-5 text-slate-400" />
-                    <input 
-                        autoFocus
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Buscar protocolo, medicação, sintoma..." 
-                        className="flex-1 text-lg bg-transparent border-none focus:ring-0 text-white placeholder-slate-500 outline-none"
-                    />
-                    <div className="hidden md:block text-xs font-bold text-slate-500 bg-slate-800 px-2 py-1 rounded">ESC</div>
-                </div>
-                
-                <div className="overflow-y-auto">
-                    {query.length < 2 ? (
-                         <div className="p-4">
-                            <div className="text-xs font-bold text-slate-500 px-2 py-2 uppercase tracking-wider mb-2">Sugestões Rápidas</div>
-                            <button onClick={() => navigate('protocol-detail', 'p1')} className="w-full text-left px-4 py-3 hover:bg-slate-800 rounded-lg text-slate-300 flex items-center justify-between group">
-                                <span className="flex items-center gap-3"><Activity className="w-4 h-4 text-accent-500"/> Pulpite Irreversível</span>
-                                <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 text-slate-500"/>
-                            </button>
-                            <button onClick={() => navigate('prescriptions')} className="w-full text-left px-4 py-3 hover:bg-slate-800 rounded-lg text-slate-300 flex items-center justify-between group">
-                                <span className="flex items-center gap-3"><Pill className="w-4 h-4 text-accent-500"/> Amoxicilina (Prescrições)</span>
-                                <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 text-slate-500"/>
-                            </button>
-                            <button onClick={() => navigate('protocol-detail', 'p3')} className="w-full text-left px-4 py-3 hover:bg-slate-800 rounded-lg text-slate-300 flex items-center justify-between group">
-                                <span className="flex items-center gap-3"><Activity className="w-4 h-4 text-accent-500"/> Drenagem de Abscesso</span>
-                                <ChevronRight className="w-4 h-4 opacity-0 group-hover:opacity-100 text-slate-500"/>
-                            </button>
-                         </div>
-                    ) : filteredResults.length > 0 ? (
-                        <div className="p-2">
-                             {filteredResults.map((item, idx) => (
-                                <button 
-                                    key={idx} 
-                                    onClick={() => handleSelect(item)}
-                                    className="w-full text-left px-4 py-3 hover:bg-slate-800 rounded-xl flex items-center gap-3 group transition-colors"
-                                >
-                                    <div className="p-2 bg-slate-800 rounded-lg text-slate-500 group-hover:text-accent-500 group-hover:bg-accent-900/20 transition-colors">
-                                        {item.id === 'prescriptions' ? <Pill className="w-5 h-5"/> : item.id === 'faq' ? <HelpCircle className="w-5 h-5"/> : <Activity className="w-5 h-5"/>}
-                                    </div>
-                                    <div>
-                                        <div className="text-sm font-medium text-white">{item.label}</div>
-                                        <div className="text-xs text-slate-500">{item.type}</div>
-                                    </div>
-                                </button>
-                             ))}
-                        </div>
-                    ) : (
-                        <div className="p-8 text-center text-slate-500">
-                            Nenhum resultado encontrado para "{query}"
-                        </div>
-                    )}
-                </div>
-            </motion.div>
-        </div>
-    )
-}
-
-const MainAppContent = () => {
-    const { currentView, selectedProtocolId, navigate } = useApp();
-
-    const renderContent = () => {
-        switch (currentView) {
-          case 'home':
-            return <Hero />;
-          case 'manifesto':
-            return <ManifestoView />;
-          case 'diagnosis':
-            return <DiagnosisWizard />;
-          case 'protocols':
-            return (
-              <div className="max-w-4xl mx-auto px-4 py-8">
-                 <motion.h2 
-                    initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-                    className="text-3xl font-bold text-slate-900 dark:text-white mb-8"
-                 >
-                    Protocolos Clínicos
-                 </motion.h2>
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {PROTOCOLS.map((p, index) => (
-                       <motion.div
-                          key={p.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                       >
-                           {/* Using the standard Card now, Spotlight effect is built in */}
-                           <div onClick={() => navigate('protocol-detail', p.id)} className="h-full">
-                            <div className={`bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 hover:shadow-xl hover:border-slate-300 dark:hover:border-slate-700 transition-all cursor-pointer h-full group relative overflow-hidden`}>
-                                <div className={`absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity`}>
-                                     <div className={`w-24 h-24 rounded-full ${p.color} blur-xl`} />
-                                </div>
-                                <div className={`w-12 h-12 rounded-xl mb-4 ${p.color} flex items-center justify-center text-white font-bold text-xl shadow-lg relative z-10`}>
-                                    {p.id.replace('p', '')}
-                                </div>
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 relative z-10">{p.title}</h3>
-                                <p className="text-slate-500 dark:text-slate-400 text-sm line-clamp-2 relative z-10">{p.description}</p>
-                            </div>
-                           </div>
-                       </motion.div>
-                    ))}
-                 </div>
-              </div>
-            );
-          case 'protocol-detail':
-            const protocol = PROTOCOLS.find(p => p.id === selectedProtocolId);
-            if (!protocol) return <div>Protocolo não encontrado</div>;
-            return <ProtocolView protocol={protocol} />;
-          case 'prescriptions':
-            return <PrescriptionList />;
-          case 'scripts':
-            return <ScriptList />;
-          case 'references':
-          case 'faq':
-            return <ReferenceView />;
-          default:
-            return <Hero />;
-        }
-    };
-
-    return (
-        <Layout focusMode={currentView === 'diagnosis'}>
-            <AnimatePresence mode="wait">
-                <motion.div
-                    key={currentView}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3, ease: "easeInOut" }}
-                    className="w-full"
-                >
-                    {renderContent()}
-                </motion.div>
-            </AnimatePresence>
-            <AnimatePresence>
-                <SearchOverlay />
-            </AnimatePresence>
-        </Layout>
-    );
+type SearchResult = {
+  type: 'Protocolo' | 'Prescrição' | 'Comunicação' | 'FAQ';
+  label: string;
+  description: string;
+  id: string;
 };
 
-function App() {
+const resultIcon = {
+  Protocolo: Activity,
+  Prescrição: Pill,
+  Comunicação: MessageSquare,
+  FAQ: HelpCircle,
+};
+
+const SearchOverlay: React.FC = () => {
+  const { isSearchOpen, toggleSearch, navigate } = useApp();
+  const [query, setQuery] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
+
+  const results = useMemo<SearchResult[]>(() => {
+    const normalized = query.trim().toLocaleLowerCase('pt-BR');
+    if (normalized.length < 2) return [];
+    const includes = (...values: string[]) => values.some((value) => value.toLocaleLowerCase('pt-BR').includes(normalized));
+    return [
+      ...PROTOCOLS.filter((item) => includes(item.title, item.description, ...item.steps.flatMap((step) => step.content))).map((item) => ({ type: 'Protocolo' as const, label: item.title, description: item.description, id: item.id })),
+      ...PRESCRIPTIONS.filter((item) => includes(item.title, item.condition, ...item.medications.map((medication) => medication.name))).map((item) => ({ type: 'Prescrição' as const, label: item.title, description: item.condition, id: item.id })),
+      ...SCRIPTS.filter((item) => includes(item.title, item.scenario, item.content)).map((item) => ({ type: 'Comunicação' as const, label: item.title, description: item.scenario, id: item.id })),
+      ...FAQS.map((item, index) => ({ item, index })).filter(({ item }) => includes(item.question, item.answer, item.category ?? '')).map(({ item, index }) => ({ type: 'FAQ' as const, label: item.question, description: item.category ?? 'Geral', id: `faq-${index}` })),
+    ].slice(0, 10);
+  }, [query]);
+
+  useEffect(() => {
+    const onShortcut = (event: KeyboardEvent) => {
+      if (event.key.toLowerCase() === 'k' && (event.metaKey || event.ctrlKey)) {
+        event.preventDefault();
+        toggleSearch();
+      }
+    };
+    document.addEventListener('keydown', onShortcut);
+    return () => document.removeEventListener('keydown', onShortcut);
+  }, [toggleSearch]);
+
+  useEffect(() => {
+    if (!isSearchOpen) return;
+    openerRef.current = document.activeElement as HTMLElement;
+    setQuery('');
+    requestAnimationFrame(() => inputRef.current?.focus());
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') toggleSearch(false);
+      if (event.key !== 'Tab') return;
+      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>('button,input,[href],[tabindex]:not([tabindex="-1"])');
+      if (!focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      openerRef.current?.focus();
+    };
+  }, [isSearchOpen, toggleSearch]);
+
+  if (!isSearchOpen) return null;
+
+  const select = (result: SearchResult) => {
+    if (result.type === 'Protocolo') navigate('protocol-detail', result.id);
+    if (result.type === 'Prescrição') navigate('prescriptions', undefined, undefined, result.id);
+    if (result.type === 'Comunicação') navigate('scripts', undefined, undefined, result.id);
+    if (result.type === 'FAQ') navigate('references', undefined, 'faq', result.id);
+  };
+
   return (
-    <AppProvider>
-        <ToastProvider>
-            <MainAppContent />
-        </ToastProvider>
-    </AppProvider>
+    <div className="fixed inset-0 z-[80] flex items-start justify-center bg-clinical-midnight/75 px-3 pt-[8vh] backdrop-blur-sm" onMouseDown={(event) => event.target === event.currentTarget && toggleSearch(false)}>
+      <motion.div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="search-title" initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} className="flex max-h-[78vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-white/10 bg-clinical-ink text-white shadow-2xl">
+        <div className="flex items-center gap-3 border-b border-white/10 p-4 sm:p-5">
+          <Search className="h-5 w-5 shrink-0 text-mineral-300" />
+          <div className="min-w-0 flex-1"><h2 id="search-title" className="sr-only">Buscar no SOS Endo</h2><input ref={inputRef} type="search" role="searchbox" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Sintoma, protocolo, medicação ou dúvida..." className="w-full bg-transparent text-base text-white outline-none placeholder:text-slate-400 sm:text-lg" /></div>
+          <button type="button" onClick={() => toggleSearch(false)} className="icon-button text-slate-300 hover:bg-white/10 hover:text-white" aria-label="Fechar busca"><X className="h-5 w-5" /></button>
+        </div>
+        <div className="overflow-y-auto p-3 sm:p-4">
+          {query.trim().length < 2 && <div className="rounded-2xl border border-white/10 bg-white/5 p-5"><p className="font-bold">Busca clínica unificada</p><p className="mt-1 text-sm text-slate-300">Pesquise protocolos, prescrições, comunicação e perguntas frequentes.</p></div>}
+          {query.trim().length >= 2 && results.length === 0 && <div role="status" className="p-8 text-center text-slate-300"><p className="font-bold text-white">Nenhum resultado</p><p className="mt-1 text-sm">Tente outro sintoma, material ou termo clínico.</p></div>}
+          <div className="space-y-1">
+            {results.map((result) => {
+              const Icon = resultIcon[result.type];
+              return (
+                <button key={`${result.type}-${result.id}`} type="button" onClick={() => select(result)} aria-label={`${result.type}: ${result.label}`} className="flex w-full items-center gap-3 rounded-2xl p-3 text-left transition hover:bg-white/8 focus-visible:bg-white/8">
+                  <span className="rounded-xl bg-white/8 p-2.5 text-mineral-300"><Icon className="h-5 w-5" /></span>
+                  <span className="min-w-0 flex-1"><span className="block truncate font-bold">{result.label}</span><span className="block truncate text-xs text-slate-400">{result.type} · {result.description}</span></span>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-slate-500" />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+const ProtocolList: React.FC = () => {
+  const { navigate } = useApp();
+  return (
+    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+      <p className="eyebrow">Condutas organizadas</p>
+      <h1 className="page-title mt-2">Protocolos clínicos</h1>
+      <p className="page-subtitle">Escolha um quadro para revisar indicação, materiais, checkpoints e alertas de encaminhamento.</p>
+      <div className="mt-8 grid gap-4 lg:grid-cols-2">
+        {PROTOCOLS.map((protocol, index) => (
+          <button key={protocol.id} type="button" onClick={() => navigate('protocol-detail', protocol.id)} className="surface surface-interactive group flex min-w-0 items-start gap-4 p-5 text-left sm:p-6">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-clinical-midnight text-sm font-extrabold text-white dark:bg-mineral-300 dark:text-clinical-midnight">{String(index + 1).padStart(2, '0')}</span>
+            <span className="min-w-0 flex-1"><span className="block text-lg font-extrabold tracking-tight sm:text-xl">{protocol.title}</span><span className="mt-2 block text-sm leading-relaxed text-slate-600 line-clamp-3 dark:text-slate-300">{protocol.description}</span><span className="mt-4 inline-flex items-center gap-2 text-xs font-extrabold text-mineral-700 dark:text-mineral-300">Abrir protocolo <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" /></span></span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const MainAppContent: React.FC = () => {
+  const { currentView, selectedProtocolId, navigate } = useApp();
+  const content = (() => {
+    if (currentView === 'home') return <Hero />;
+    if (currentView === 'manifesto') return <ManifestoView />;
+    if (currentView === 'diagnosis') return <DiagnosisWizard />;
+    if (currentView === 'protocols') return <ProtocolList />;
+    if (currentView === 'protocol-detail') {
+      const protocol = PROTOCOLS.find((item) => item.id === selectedProtocolId);
+      return protocol ? <ProtocolView protocol={protocol} /> : <div className="mx-auto max-w-xl px-4 py-20 text-center"><h1 className="page-title">Protocolo não encontrado</h1><p className="page-subtitle">O link pode estar incompleto ou desatualizado.</p><button type="button" onClick={() => navigate('protocols')} className="primary-action mt-6">Voltar aos protocolos</button></div>;
+    }
+    if (currentView === 'prescriptions') return <PrescriptionList />;
+    if (currentView === 'scripts') return <ScriptList />;
+    if (currentView === 'references' || currentView === 'faq') return <ReferenceView />;
+    return <Hero />;
+  })();
+
+  return (
+    <Layout focusMode={currentView === 'diagnosis'}>
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div key={`${currentView}-${selectedProtocolId ?? ''}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ duration: .18 }} className="w-full min-w-0">{content}</motion.div>
+      </AnimatePresence>
+      <AnimatePresence><SearchOverlay /></AnimatePresence>
+    </Layout>
+  );
+};
+
+export default function App() {
+  return (
+    <MotionConfig reducedMotion="user">
+      <AppProvider><ToastProvider><MainAppContent /></ToastProvider></AppProvider>
+    </MotionConfig>
   );
 }
-
-export default App;

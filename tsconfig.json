@@ -15,8 +15,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
-    "types": ["vite/client", "node"]
+    "types": ["vite/client", "node", "vitest/globals"]
   },
-  "include": ["."],
+  "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]
 }
