@@ -1,0 +1,28 @@
+{
+  "name": "braces",
+  "version": "3.0.3",
+  "upstream": {
+    "shasum": "490332f40919452272d55a8480adc0c441358789",
+    "tarball": "https://registry.npmjs.org/braces/-/braces-3.0.3.tgz",
+    "fileCount": 10,
+    "integrity": "sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==",
+    "signatures": [
+      {
+        "sig": "MEQCICfWLKNcFCGtU07ikrPJ+s1dTDH3VZTE+vQZzC22s6o+AiAEVUE/YXRqHYgctcwHqNawvsOviSDFZPvgNm8+SUXD3w==",
+        "keyid": "SHA256:jl3bwswu80PjjokCgh0o2w5c2U4LhQAE57gj9cz1kzA"
+      }
+    ],
+    "unpackedSize": 44635
+  },
+  "upstream_integrity_verified": true,
+  "patch_sha256": "ffb44b08815405f473c2a50e923ea7d6ad001312f3ab3e88a25fabbcbea26181",
+  "local_tarball_sha256": "2ca5ad0ab35610e9e1ecf130cc208fca453f51d8cd11f11470b276fa44777649",
+  "kind": "backport-local; sem alegacao de release upstream",
+  "local_tarball": "braces-3.0.3-depth128-parentguard-r3.tgz",
+  "successor_of": "braces-3.0.3-depth128.tgz",
+  "remediation": "QA-APPS-FINAL-003: detec\u00e7\u00e3o de pais repetidos e limite de 128 em ambos os loops de expand; API e vers\u00e3o 3.0.3 preservadas",
+  "recipe": "braces-prepare.py: upstream com SRI conferido; base depth128; duas guardas em expand.js; tar/gzip determin\u00edsticos sem lifecycle",
+  "patch_context_lines": 0,
+  "patch_apply": "git apply --unidiff-zero -p1",
+  "patch_recipe": "diff -U0 entre todos os arquivos regulares do tarball upstream com SRI conferido e do tarball local preservado; reaplica\u00e7\u00e3o exata conferida."
+}

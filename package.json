@@ -11,7 +11,8 @@
     "test:watch": "vitest",
     "qa:browser": "node scripts/qa-browser.mjs",
     "qa:responsive": "node scripts/qa-responsive-contract.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:dependency-contracts": "node --test patches/dependency-contracts.check.cjs"
   },
   "dependencies": {
     "@fontsource/libre-baskerville": "^5.3.0",
@@ -36,7 +37,15 @@
     "postcss": "^8.4.31",
     "tailwindcss": "^3.3.5",
     "typescript": "^5.2.2",
-    "vite": "^5.0.0",
-    "vitest": "^2.1.9"
+    "vite": "^6.4.5",
+    "vitest": "^4.1.12",
+    "braces": "file:patches/braces-3.0.3-depth128-parentguard-r3.tgz"
+  },
+  "overrides": {
+    "vitest": {
+      "vite": "$vite"
+    },
+    "braces": "$braces",
+    "postcss-selector-parser@<6.1.5": "6.1.5"
   }
 }
