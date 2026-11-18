@@ -82,7 +82,7 @@ for (const viewport of viewports) {
 
   await page.goto(`${url}#/prescriptions`, { waitUntil: 'domcontentloaded' });
   const acknowledgement = page.getByRole('checkbox', { name: /Revisei alergias, contraindicações/ }).first();
-  const copyButton = page.getByRole('button', { name: /Copiar modelo de prescrição/ }).first();
+  const copyButton = page.getByRole('button', { name: /Copiar modelo revisado/ }).first();
   const disabledBefore = await copyButton.isDisabled();
   await acknowledgement.check();
   await copyButton.click();

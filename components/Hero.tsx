@@ -42,7 +42,7 @@ export const Hero: React.FC = () => {
           </div>
         </section>
 
-        <Card className="md:col-span-1 desktop:col-span-5" onClick={() => navigate('protocols')} ariaLabel="Abrir protocolos clínicos">
+        <Card className="md:col-span-1 desktop:col-span-5" onClick={() => navigate('protocols')}>
           <div className="flex h-full flex-col">
             <div className="flex items-center justify-between"><div className="rounded-xl bg-mineral-50 p-2.5 text-mineral-700 dark:bg-mineral-400/10 dark:text-mineral-200"><BookOpen className="h-5 w-5" /></div><ArrowRight className="h-5 w-5 text-slate-400" /></div>
             <h2 className="mt-6 text-2xl font-extrabold tracking-tight">Protocolos clínicos</h2>
@@ -53,13 +53,13 @@ export const Hero: React.FC = () => {
           </div>
         </Card>
 
-        <Card className="desktop:col-span-4" onClick={() => toggleSearch(true)} ariaLabel="Pesquisar conteúdo clínico">
+        <Card className="desktop:col-span-4" onClick={() => toggleSearch(true)}>
           <div className="flex items-center gap-4"><div className="rounded-xl bg-clinical-mist p-3 text-clinical-ink dark:bg-white/5 dark:text-white"><Search className="h-5 w-5" /></div><div><p className="font-extrabold">Busca clínica</p><p className="text-sm text-slate-600 dark:text-slate-300">Encontre uma resposta sem percorrer menus.</p></div></div>
         </Card>
-        <Card className="desktop:col-span-4" onClick={() => navigate('prescriptions')} ariaLabel="Abrir modelos de apoio à prescrição">
+        <Card className="desktop:col-span-4" onClick={() => navigate('prescriptions')}>
           <div className="flex items-center gap-4"><div className="rounded-xl bg-blue-50 p-3 text-blue-700 dark:bg-blue-400/10 dark:text-blue-200"><FileText className="h-5 w-5" /></div><div><p className="font-extrabold">Modelos de prescrição</p><p className="text-sm text-slate-600 dark:text-slate-300">Revise segurança antes de copiar.</p></div></div>
         </Card>
-        <Card className="desktop:col-span-4" onClick={() => navigate('scripts')} ariaLabel="Abrir scripts de comunicação clínica">
+        <Card className="desktop:col-span-4" onClick={() => navigate('scripts')}>
           <div className="flex items-center gap-4"><div className="rounded-xl bg-violet-50 p-3 text-violet-700 dark:bg-violet-400/10 dark:text-violet-200"><MessageSquare className="h-5 w-5" /></div><div><p className="font-extrabold">Comunicação clínica</p><p className="text-sm text-slate-600 dark:text-slate-300">Oriente com clareza e segurança.</p></div></div>
         </Card>
       </div>

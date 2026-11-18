@@ -22,7 +22,7 @@ describe('SOS Endo application integration', () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await user.click(screen.getByRole('button', { name: /buscar/i }));
+    await user.click(screen.getByRole('button', { name: /^buscar$/i }));
     await user.type(screen.getByRole('searchbox'), 'Quanto tempo a dor leva');
     await user.click(await screen.findByRole('button', { name: 'FAQ: Quanto tempo a dor leva para passar?' }));
 
@@ -33,7 +33,7 @@ describe('SOS Endo application integration', () => {
   it('exposes dashboard shortcuts as named keyboard-operable controls', () => {
     render(<App />);
 
-    expect(screen.getByRole('button', { name: /abrir protocolos clínicos/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^protocolos clínicos/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /iniciar triagem clínica/i })).toBeInTheDocument();
   });
 

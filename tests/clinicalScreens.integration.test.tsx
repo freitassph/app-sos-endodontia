@@ -34,7 +34,7 @@ describe('clinical screen safety contracts', () => {
     window.location.hash = '#/prescriptions';
     render(<App />);
 
-    const copyButton = screen.getAllByRole('button', { name: /copiar modelo de prescrição/i })[0];
+    const copyButton = screen.getAllByRole('button', { name: /^copiar modelo revisado de/i })[0];
     expect(copyButton).toBeDisabled();
     expect(screen.getAllByRole('checkbox', { name: /revisei alergias, contraindicações/i })[0]).not.toBeChecked();
   });

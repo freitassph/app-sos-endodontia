@@ -6,14 +6,13 @@ interface CardProps {
   className?: string;
   onClick?: () => void;
   noPadding?: boolean;
-  ariaLabel?: string;
 }
 
-export const Card: React.FC<CardProps> = ({ children, className = '', onClick, noPadding = false, ariaLabel }) => {
+export const Card: React.FC<CardProps> = ({ children, className = '', onClick, noPadding = false }) => {
   const classes = `surface ${noPadding ? '' : 'p-5 sm:p-6'} ${onClick ? 'surface-interactive' : ''} ${className}`;
   if (onClick) {
     return (
-      <motion.button type="button" onClick={onClick} aria-label={ariaLabel} whileTap={{ scale: 0.985 }} className={`${classes} block w-full text-left`}>
+      <motion.button type="button" onClick={onClick} whileTap={{ scale: 0.985 }} className={`${classes} block w-full text-left`}>
         {children}
       </motion.button>
     );

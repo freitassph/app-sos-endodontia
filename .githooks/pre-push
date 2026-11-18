@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+while read -r local_ref oid remote_ref old_oid; do
+  [[ "$remote_ref" == refs/heads/main ]] || continue
+  [[ "$oid" != 0000000000000000000000000000000000000000 ]] || { echo "Remoção de main bloqueada." >&2; exit 1; }
+  # A execução acompanha o objeto do protocolo Git, mesmo que a árvore aberta tenha WIP.
+  git show "$oid:scripts/local-release.sh" | bash -s -- qualify "$oid"
+done

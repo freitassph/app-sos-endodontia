@@ -12,7 +12,11 @@
     "qa:browser": "node scripts/qa-browser.mjs",
     "qa:responsive": "node scripts/qa-responsive-contract.mjs",
     "preview": "vite preview",
-    "test:dependency-contracts": "node --test patches/dependency-contracts.check.cjs"
+    "test:dependency-contracts": "node --test patches/dependency-contracts.check.cjs",
+    "prepare": "node scripts/install-local-hook.mjs",
+    "setup:hooks": "node scripts/install-local-hook.mjs",
+    "qualify:local": "bash scripts/local-release.sh qualify",
+    "release:status": "node scripts/verify-vercel-release.mjs"
   },
   "dependencies": {
     "@fontsource/libre-baskerville": "^5.3.0",
@@ -40,6 +44,9 @@
     "vite": "^6.4.5",
     "vitest": "^4.1.12",
     "braces": "file:patches/braces-3.0.3-depth128-parentguard-r3.tgz"
+  },
+  "engines": {
+    "node": "24.x"
   },
   "overrides": {
     "vitest": {

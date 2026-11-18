@@ -75,7 +75,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, focusMode = false }) =
   return (
     <div className="min-h-dvh bg-clinical-ivory text-clinical-midnight dark:bg-clinical-midnight dark:text-white">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[232px] flex-col border-r border-slate-200 bg-white/95 lg:flex desktop:w-[264px] dark:border-white/10 dark:bg-clinical-ink/95" aria-label="Navegação principal">
-        <button type="button" onClick={() => navigate('home')} className="flex h-20 items-center gap-3 border-b border-slate-100 px-5 desktop:px-6 dark:border-white/10" aria-label="Ir para o painel">
+        <button type="button" onClick={() => navigate('home')} className="flex h-20 items-center gap-3 border-b border-slate-100 px-5 desktop:px-6 dark:border-white/10" aria-label="SOS Endo, ir para o painel">
           <BrandMark className="h-10 w-10" />
           <span className="text-lg font-extrabold tracking-[-0.03em]">SOS Endo</span>
         </button>
@@ -92,7 +92,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, focusMode = false }) =
             <button type="button" onClick={toggleTheme} className="icon-button" aria-label={isDark ? 'Ativar tema claro' : 'Ativar tema escuro'}>
               {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
-            <button type="button" onClick={() => toggleSearch(true)} className="flex flex-1 items-center justify-between rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-slate-600 dark:border-white/10 dark:text-slate-200" aria-label="Abrir busca clínica com Command K">
+            <button type="button" onClick={() => toggleSearch(true)} className="flex flex-1 items-center justify-between rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-slate-600 dark:border-white/10 dark:text-slate-200" aria-keyshortcuts="Meta+K Control+K">
               Buscar <kbd className="rounded border border-slate-300 px-1.5 py-0.5 text-[10px] dark:border-white/20">⌘K</kbd>
             </button>
           </div>
@@ -100,7 +100,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, focusMode = false }) =
       </aside>
 
       <header className="fixed inset-x-0 top-0 z-40 flex h-[64px] items-center justify-between border-b border-slate-200 bg-white/95 px-4 pt-safe lg:hidden dark:border-white/10 dark:bg-clinical-midnight/95">
-        <button type="button" onClick={() => navigate('home')} className="flex items-center gap-2" aria-label="Ir para o painel">
+        <button type="button" onClick={() => navigate('home')} className="flex items-center gap-2" aria-label="SOS Endo, ir para o painel">
           <BrandMark className="h-9 w-9" />
           <span className="font-extrabold tracking-[-0.03em]">SOS Endo</span>
         </button>
