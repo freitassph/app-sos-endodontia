@@ -1,0 +1,24 @@
+# O Vite e o prepare do npm usam as fontes, os scripts e o tarball fixado no lock.
+.git/
+.vercel/
+node_modules/
+dist/
+dist-ssr/
+coverage/
+test-results/
+playwright-report/
+.cache/
+.eslintcache
+*.tsbuildinfo
+*.log
+.DS_Store
+.env
+.env.*
+.secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+docs/
+# O tarball anterior permanece como evidência local, fora do upload.
+patches/braces-3.0.3-depth128.tgz
